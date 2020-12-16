@@ -1,5 +1,5 @@
-{application, pbkdf2,
- [{description, "PBKDF2 algorithm implementation"},
+{application, pkcs,
+ [{description, "PKCS algorithm implementation"},
   {vsn, "git"},
   {registered, []},
   {applications,
