@@ -22,20 +22,32 @@
               salt/0,
               ic/0,
               dk_len/0,
-              dk/0]).
+              dk/0,
+              digest/0]).
 
 -type password() :: binary().
 -type salt() :: binary().
 -type ic() :: pos_integer().
 -type dk_len() :: pos_integer().
 -type dk() :: binary().
+-type digest() :: sha
+                | sha224
+                | sha256
+                | sha384
+                | sha512
+                | sha3_224
+                | sha3_256
+                | sha3_384
+                | sha3_512
+                | md5
+                | md4.
 
 -spec pbkdf2(password(), salt(), ic(), dk_len()) ->
           {ok, dk()} | {error, term()}.
 pbkdf2(Password, Salt, IterationCount, DKLen) ->
     pbkdf2(sha512, Password, Salt, IterationCount, DKLen).
 
--spec pbkdf2(term(), password(), salt(), ic(), dk_len()) ->
+-spec pbkdf2(digest(), password(), salt(), ic(), dk_len()) ->
           {ok, dk()} | {error, term()}.
 pbkdf2(_Digest, _Password, _Salt, _IterationCount, DKLen) when DKLen < 0 ->
     {error, derived_key_too_short};
@@ -49,27 +61,31 @@ pbkdf2(Digest, Password, Salt, IterationCount, DKLen) ->
         false ->
             BlockNedeed = round(math:ceil(DKLen / HLen)),
             LastBlockSize = DKLen - (BlockNedeed - 1) * HLen,
-            Data = calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, 1, <<>>),
+            Data = compute(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, 1, <<>>),
             {ok, <<Data:DKLen/binary>>}
     end.
 
-calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, BlockIndex, Acc)
+-spec compute(digest(), password(), salt(), ic(), pos_integer(), non_neg_integer(), pos_integer(), binary()) ->
+          binary().
+compute(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, BlockIndex, Acc)
   when BlockIndex =:= BlockNedeed ->
-    Block0 = calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, <<>>, <<>>),
+    Block0 = compute_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, <<>>, <<>>),
     Block = <<Block0:LastBlockSize/binary>>,
     <<Acc/binary, Block/binary>>;
-calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, BlockIndex, Acc) ->
-    Block = calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, <<>>, <<>>),
-    calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize,
+compute(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, BlockIndex, Acc) ->
+    Block = compute_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, <<>>, <<>>),
+    compute(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize,
               BlockIndex + 1, <<Acc/binary, Block/binary>>).
 
-calculate_block(_Digest, _Password, _Salt, IterationCount, _BlockIndex, Iteration, _Prev, Acc)
+-spec compute_block(digest(), password(), salt(), ic(), pos_integer(), pos_integer(), binary(), binary()) ->
+          binary().
+compute_block(_Digest, _Password, _Salt, IterationCount, _BlockIndex, Iteration, _Prev, Acc)
   when Iteration > IterationCount ->
     Acc;
-calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, _Prev, _Acc) ->
+compute_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, _Prev, _Acc) ->
     InitialBlock = crypto:mac(hmac, Digest, Password, <<Salt/binary, BlockIndex:32>>),
-    calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 2, InitialBlock, InitialBlock);
-calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration, Prev, Acc) ->
+    compute_block(Digest, Password, Salt, IterationCount, BlockIndex, 2, InitialBlock, InitialBlock);
+compute_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration, Prev, Acc) ->
     NextBlock = crypto:mac(hmac, Digest, Password, Prev),
-    calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration + 1,
+    compute_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration + 1,
                     NextBlock, crypto:exor(NextBlock, Acc)).
