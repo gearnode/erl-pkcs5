@@ -48,22 +48,28 @@ pbkdf2(Digest, Password, Salt, IterationCount, DKLen) ->
             {error, derived_key_too_long};
         false ->
             BlockNedeed = round(math:ceil(DKLen / HLen)),
-            R = DKLen - (BlockNedeed - 1) * HLen,
-            Data = calculate(Digest, Password, Salt, IterationCount, BlockNedeed, 1, <<>>),
-            {ok, <<Data:R/binary>>}
+            LastBlockSize = DKLen - (BlockNedeed - 1) * HLen,
+            Data = calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, 1, <<>>),
+            {ok, <<Data:DKLen/binary>>}
     end.
 
-calculate(Digest, Password, Salt, IterationCount, BlockNedeed, BlockIndex, Acc) when BlockIndex > BlockNedeed ->
-    Acc;
-calculate(Digest, Password, Salt, IterationCount, BlockNedeed, BlockIndex, Acc) ->
+calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, BlockIndex, Acc)
+  when BlockIndex =:= BlockNedeed ->
+    Block0 = calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, <<>>, <<>>),
+    Block = <<Block0:LastBlockSize/binary>>,
+    <<Acc/binary, Block/binary>>;
+calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize, BlockIndex, Acc) ->
     Block = calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, <<>>, <<>>),
-    calculate(Digest, Password, Salt, IterationCount, BlockNedeed, BlockIndex + 1, <<Acc/binary, Block/binary>>).
+    calculate(Digest, Password, Salt, IterationCount, BlockNedeed, LastBlockSize,
+              BlockIndex + 1, <<Acc/binary, Block/binary>>).
 
-calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration, Prev, Acc) when Iteration > IterationCount ->
+calculate_block(_Digest, _Password, _Salt, IterationCount, _BlockIndex, Iteration, _Prev, Acc)
+  when Iteration > IterationCount ->
     Acc;
 calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 1, _Prev, _Acc) ->
     InitialBlock = crypto:mac(hmac, Digest, Password, <<Salt/binary, BlockIndex:32>>),
     calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, 2, InitialBlock, InitialBlock);
 calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration, Prev, Acc) ->
     NextBlock = crypto:mac(hmac, Digest, Password, Prev),
-    calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration + 1, NextBlock, crypto:exor(NextBlock, Acc)).
+    calculate_block(Digest, Password, Salt, IterationCount, BlockIndex, Iteration + 1,
+                    NextBlock, crypto:exor(NextBlock, Acc)).
