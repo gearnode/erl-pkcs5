@@ -26,8 +26,8 @@ encode(<<>>, Acc) ->
 encode(<<A:4, B:4, Rest/binary>>, Acc) ->
     encode(Rest, <<Acc/binary, (enc16(A)), (enc16(B))>>).
 
--spec enc16(0..15) -> binary().
+-spec enc16(0..15) -> byte().
 enc16(Char) when Char =< 9 ->
     Char + $0;
-enc16(Char) ->
+enc16(Char) when Char =< 15 ->
     Char + $a - 10.
