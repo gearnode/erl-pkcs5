@@ -16,9 +16,17 @@
 
 -include_lib("eunit/include/eunit.hrl").
 
+pbkdf2_b16(Digest, Password, Salt, IC) ->
+    {ok, Result} = pkcs_pbkdf2:pbkdf2(Digest, Password, Salt, IC),
+    pkcs_base16:encode(Result).
+
 pbkdf2_b16(Digest, Password, Salt, IC, KLen) ->
     {ok, Result} = pkcs_pbkdf2:pbkdf2(Digest, Password, Salt, IC, KLen),
     pkcs_base16:encode(Result).
+
+pbkdf2_short_func_test_() ->
+    [?_assertEqual(<<"0c60c80f961f0e71f3a9b524af6012062fe037a6">>,
+                   pbkdf2_b16(sha, <<"password">>, <<"salt">>, 1))].
 
 rfc6070_test_() ->
      [?_assertEqual(<<"0c60c80f961f0e71f3a9b524af6012062fe037a6">>,

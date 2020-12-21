@@ -46,7 +46,7 @@
           {ok, dk()} | {error, term()}.
 pbkdf2(Digest, Password, Salt, IterationCount) ->
     DKLen = byte_size(crypto:mac(hmac, Digest, <<>>, <<>>)),
-    pbkdf2(sha512, Password, Salt, IterationCount, DKLen).
+    pbkdf2(Digest, Password, Salt, IterationCount, DKLen).
 
 -spec pbkdf2(digest(), password(), salt(), ic(), dk_len()) ->
           {ok, dk()} | {error, term()}.
