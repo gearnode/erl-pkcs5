@@ -13,7 +13,7 @@ updating their application when `pkcs5` is modified. Note that unstable
 versions can be modified without backward compatibility at any time.
 
 # Modules
-## `pkcs5_pbkdf2`
+## `pkcs5`
 ### `pbkdf2/4`
 Computes a PBKDF2 (Password-Based Key Derivation Function 2) in
 combination with a hash function.
