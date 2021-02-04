@@ -9,16 +9,16 @@ on:
 jobs:
   test:
     name: "Running tests"
-    runs-on: "ubuntu-18.04"
+    runs-on: "ubuntu-20.04"
     env:
-      erlang_version: "23.1-1"
-      rebar3_version: "3.14.2"
+      erlang_version: "23.2.1-1"
+      rebar3_version: "3.14.3"
     steps:
       - uses: "actions/checkout@v2"
       - name: "Installing Erlang"
         run: |
           cd /tmp
-          pkg_name="esl-erlang_${erlang_version}~ubuntu~bionic_amd64.deb"
+          pkg_name="esl-erlang_${erlang_version}~ubuntu~focal_amd64.deb"
           pkg_uri="https://packages.erlang-solutions.com/erlang/debian/pool/${pkg_name}"
           wget -nv $pkg_uri
           sudo dpkg -i ./${pkg_name}
@@ -33,6 +33,6 @@ jobs:
       - name: "Running dialyzer"
         run: |
           make dialyzer
-      - name: "Running tests"
+      - name: "Running eunit"
         run: |
           make test
