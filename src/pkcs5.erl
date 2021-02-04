@@ -1,4 +1,4 @@
-%% Copyright (c) 2020 Bryan Frimin <bryan@frimin.fr>.
+%% Copyright (c) 2020, 2021 Bryan Frimin <bryan@frimin.fr>.
 %%
 %% Permission to use, copy, modify, and/or distribute this software for any
 %% purpose with or without fee is hereby granted, provided that the above
@@ -12,15 +12,12 @@
 %% OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 %% PERFORMANCE OF THIS SOFTWARE.
 
--module(pkcs_base16_tests).
+-module(pkcs5).
 
--include_lib("eunit/include/eunit.hrl").
+-export([pbkdf2/4, pbkdf2/5]).
 
-encode16_test_() ->
-    [?_assertEqual(<<>>, pkcs_base16:encode(<<>>)),
-     ?_assertEqual(<<"66">>, pkcs_base16:encode(<<"f">>)),
-     ?_assertEqual(<<"666f">>, pkcs_base16:encode(<<"fo">>)),
-     ?_assertEqual(<<"666f6f">>, pkcs_base16:encode(<<"foo">>)),
-     ?_assertEqual(<<"666f6f62">>, pkcs_base16:encode(<<"foob">>)),
-     ?_assertEqual(<<"666f6f6261">>, pkcs_base16:encode(<<"fooba">>)),
-     ?_assertEqual(<<"666f6f626172">>, pkcs_base16:encode(<<"foobar">>))].
+pbkdf2(Digest, Password, Salt, IterationCount) ->
+  pkcs5_pbkdf2:pbkdf2(Digest, Password, Salt, IterationCount).
+
+pbkdf2(Digest, Password, Salt, IterationCount, DKLen) ->
+  pkcs5_pbkdf2:pbkdf2(Digest, Password, Salt, IterationCount, DKLen).
