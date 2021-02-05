@@ -18,11 +18,11 @@
 
 pbkdf2_hex(Digest, Password, Salt, IC) ->
   {ok, Result} = pkcs5:pbkdf2(Digest, Password, Salt, IC),
-  pkcs5_hex_test:encode(Result).
+  hex:encode(Result).
 
 pbkdf2_hex(Digest, Password, Salt, IC, KLen) ->
   {ok, Result} = pkcs5:pbkdf2(Digest, Password, Salt, IC, KLen),
-  pkcs5_hex_test:encode(Result).
+  hex:encode(Result).
 
 pbkdf2_short_func_test_() ->
   [?_assertEqual(<<"0c60c80f961f0e71f3a9b524af6012062fe037a6">>,
