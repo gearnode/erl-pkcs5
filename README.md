@@ -1,7 +1,7 @@
 # Introduction
 This repository contains Erlang implementation of PBKDF2 algorithm
 defined by the [RFC
-8018](https://tools.ietf.org/html/rfc8018#section-1).
+8018](https://tools.ietf.org/html/rfc8018).
 
 # Build
 You can build the library with:
