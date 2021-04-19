@@ -31,3 +31,10 @@ DKLen = 32,
 {ok, DK} = pkcs5:pbkdf2(sha256, <<"password">>, <<"salt">>, IterationCount, DKLen).
 ```
 
+### `secure_compare/2`
+Constant time string comparison for binaries.
+
+Example:
+```erlang
+true = pkcs5:secure_compare(<<"password">>, <<"password">>).
+```

@@ -24,6 +24,12 @@ pbkdf2_hex(Digest, Password, Salt, IC, KLen) ->
   {ok, Result} = pkcs5:pbkdf2(Digest, Password, Salt, IC, KLen),
   hex:encode(Result).
 
+secure_compare_test_() ->
+  [?_assert(pkcs5:secure_compare(<<"abc">>, <<"abc">>)),
+   ?_assertNot(pkcs5:secure_compare(<<"abc">>, <<"abe">>)),
+   ?_assertNot(pkcs5:secure_compare(<<"ab">>, <<"abc">>)),
+   ?_assertNot(pkcs5:secure_compare(<<"abc">>, <<"ab">>))].
+
 pbkdf2_short_func_test_() ->
   [?_assertEqual(<<"0c60c80f961f0e71f3a9b524af6012062fe037a6">>,
                  pbkdf2_hex(sha, <<"password">>, <<"salt">>, 1))].
