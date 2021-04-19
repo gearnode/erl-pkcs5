@@ -32,7 +32,7 @@ DKLen = 32,
 ```
 
 ### `secure_compare/2`
-Constant time string comparison for binaries.
+Constant time binary comparison for binaries.
 
 Example:
 ```erlang
