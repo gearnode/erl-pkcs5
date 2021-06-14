@@ -18,11 +18,11 @@
 
 pbkdf2_hex(Digest, Password, Salt, IC) ->
   {ok, Result} = pkcs5:pbkdf2(Digest, Password, Salt, IC),
-  hex:encode(Result).
+  string:lowercase(binary:encode_hex(Result)).
 
 pbkdf2_hex(Digest, Password, Salt, IC, KLen) ->
   {ok, Result} = pkcs5:pbkdf2(Digest, Password, Salt, IC, KLen),
-  hex:encode(Result).
+  string:lowercase(binary:encode_hex(Result)).
 
 secure_compare_test_() ->
   [?_assert(pkcs5:secure_compare(<<"abc">>, <<"abc">>)),
