@@ -3,6 +3,14 @@ This repository contains Erlang implementation of PBKDF2 algorithm
 defined by the [RFC
 8018](https://tools.ietf.org/html/rfc8018).
 
+# Disclaimer
+This repository is not maintained anymore as the OTP has merged my
+patches to introduce `hash_equal` and `pbkdf2_hmac` functions in the
+crypto module.
+
+- [patch 1](https://github.com/erlang/otp/pull/4750)
+- [patch 2](https://github.com/erlang/otp/pull/5421)
+
 # Build
 You can build the library with:
 
